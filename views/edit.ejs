@@ -4,14 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit the recipe</title>
-    <style>
-      .ingredients-list {
-        margin-bottom: 10px;
-      }
-      #add-ingredient-button {
-        margin-bottom: 20px;
-      }
-    </style>
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
     <form method="POST" action="/recipes/<%= recipe._id %>?_method=PUT">
@@ -25,10 +18,13 @@
           <textarea id="description" name="description" required><%= recipe.description %></textarea>
         </div>
       
-        <div class="form-group ingredients-list">
+        <div class="form-group ingredients-list" id="ingredients-list">
           <label for="ingredients">Ingredients:</label>
-          <% recipe.ingredients.forEach(function(ingredient) { %>
-            <input type="text" name="ingredients[]" value="<%= ingredient %>" required>
+          <% recipe.ingredients.forEach(function(ingredient, index) { %>
+            <div class="ingredient-field">
+              <input type="text" name="ingredients[]" value="<%= ingredient %>" required>
+              <button type="button" class="remove-ingredient">Remove</button>
+            </div>
           <% }) %>
         </div>
         <button id="add-ingredient-button" type="button">Add Another Ingredient</button>
@@ -43,12 +39,22 @@
       
       <script>
         document.getElementById('add-ingredient-button').addEventListener('click', function() {
-          const ingredientsDiv = document.querySelector('.ingredients-list');
-          const newField = document.createElement('input');
-          newField.setAttribute('type', 'text');
-          newField.setAttribute('name', 'ingredients[]');
-          newField.required = true;
-          ingredientsDiv.appendChild(newField);
+          const ingredientsList = document.getElementById('ingredients-list');
+          const newField = document.createElement('div');
+          newField.classList.add('ingredient-field');
+          newField.innerHTML = `
+            <input type="text" name="ingredients[]" required>
+            <button type="button" class="remove-ingredient">Remove</button>
+          `;
+          
+          ingredientsList.appendChild(newField);
+        });
+        
+        document.getElementById('ingredients-list').addEventListener('click', function(event) {
+          if (event.target.classList.contains('remove-ingredient')) {
+            const field = event.target.closest('.ingredient-field');
+            field.remove();
+          }
         });
       </script>
 </body>
