@@ -2,6 +2,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const recipeRoutes = require('./routes/recipes');
+const logger = require('./middleware/logger');
+const methodOverride = require('method-override');
 
 const app = express();
 
@@ -11,7 +13,8 @@ app.use(express.static('public'));
 
 
 app.use('/recipes', recipeRoutes);
-
+app.use(logger);
+app.use(methodOverride('_method'));
 
 // mongoose.connect('mongodb://localhost:27017/<dbname>', { useNewUrlParser: true, useUnifiedTopology: true });
 mongoose.connect('mongodb://localhost:27017/yourDatabaseName')

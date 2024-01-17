@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recipe Sharing Platform</title>
+  <link rel="stylesheet" href="../public/css/style.css"> 
+</head>
+<body>
+  <div class="container">
+    <% recipes.forEach(function(recipe) { %>
+      <div class="recipe">
+        <h3><%= recipe.title %></h3>
+        <p><%= recipe.description %></p>
+        
+        <h4>Ingredients:</h4>
+        <ul>
+          <% recipe.ingredients.forEach(function(ingredient) { %>
+            <li><%= ingredient %></li>
+          <% }) %>
+        </ul>
+
+        <h4>Instructions:</h4>
+        <p><%= recipe.instructions %></p>
+        <a href="/recipes/<%= recipe._id %>/edit">Edit</a>
+        
+        <!-- DELETE request form -->
+        <form method="POST" action="/recipes/<%= recipe._id %>?_method=DELETE">
+          <button type="submit">Delete</button>
+        </form>
+      </div>
+    <% }) %>
+  </div>
+
+  <script>
+    // Function to dynamically add new ingredient input fields
+    function addIngredientField() {
+      // Find the ingredients container
+      const ingredientsDiv = document.querySelector('.ingredients-container');
+
+      if (ingredientsDiv) {
+        // Create a new input element for the ingredient
+        const newField = document.createElement('input');
+        newField.setAttribute('type', 'text');
+        newField.setAttribute('name', 'ingredients[]'); // Square brackets indicate an array
+        newField.required = true;
+
+        // Append the new input field to the ingredients container
+        ingredientsDiv.appendChild(newField);
+      }
+    }
+
+    // Optional: Add event listener to an "Add Ingredient" button
+    const addButton = document.querySelector('#add-ingredient-button');
+    if (addButton) {
+      addButton.addEventListener('click', (event) => {
+        event.preventDefault(); 
+        addIngredientField();
+      });
+    }
+  </script>
+</body>
+</html>
