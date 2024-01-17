@@ -9,7 +9,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
 
-mongoose.connect('mongodb://localhost:27017/<dbname>', { useNewUrlParser: true, useUnifiedTopology: true });
+// mongoose.connect('mongodb://localhost:27017/<dbname>', { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect('mongodb://localhost:27017/yourDatabaseName')
+  .then(() => console.log('MongoDB connection successful'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
 // Start the server
 const PORT = process.env.PORT || 3000;
