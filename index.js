@@ -1,13 +1,18 @@
-const bodyParser = require('body-parser');
 const express = require('express');
-
+const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
 const app = express();
-const PORT = 8000;
-const hostname = "localhost";
 
-app.use(express.json());
+app.set('view engine', 'ejs');
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static('public'));
 
-app.listen(hostname, PORT, () => {
-    console.log(`Server is running at ${hostname}: ${PORT}`);
-  });
+
+mongoose.connect('mongodb://localhost:27017/<dbname>', { useNewUrlParser: true, useUnifiedTopology: true });
+
+// Start the server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
