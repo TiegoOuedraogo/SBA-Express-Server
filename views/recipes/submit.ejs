@@ -1,0 +1,17 @@
+<h1>Submit a Recipe</h1>
+<form action="/recipes/submit" method="post">
+    
+    <label for="title">Title:</label>
+    <input type="text" id="title" name="title" required>
+
+    <label for="description">Description:</label>
+    <textarea id="description" name="description" required></textarea>
+
+    <label for="ingredients">Ingredients:</label>
+    <textarea id="ingredients" name="ingredients" required></textarea>
+
+    <label for="preparation">Preparation:</label>
+    <textarea id="preparation" name="preparation" required></textarea>
+
+    <input type="submit" value="Submit Recipe">
+</form>

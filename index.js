@@ -1,98 +1,55 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const recipeRoutes = require('./routes/recipes');
-const logger = require('./middleware/logger');
-const methodOverride = require('method-override');//use 4 the views
-const session = require('express-session');
-const flash = require('connect-flash');
-const MongoStore = require('connect-mongo');//to store the data
-const router = express.Router();
-//importing routes
-const userRoutes = require('./routes/users');
-const commentRoutes = require('./routes/comments');
-
 require('dotenv').config();
-
+const express = require('express');
+const bodyParser = require('body-parser');
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
+const connectDB = require('./config/db');
+const expressLayouts = require('express-ejs-layouts');
+const path = require('path'); 
 const app = express();
 
-app.set('view engine', 'ejs');
-app.use(express.urlencoded({ extended: true }));
+// Port Configuration
+const PORT = process.env.PORT || 8000;
+
+// Body Parser Middleware
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 app.use(express.static('public'));
 
-app.use(logger);
-app.use(methodOverride('_method'));
-
-app.use('/users', userRoutes);
-app.use('/', commentRoutes);
-
-// Session setup with MongoDB storage
+// Session Configuration
 app.use(session({
   secret: process.env.SESSION_SECRET, 
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production", 
+    maxAge: 1000 * 60 * 60 * 24 
+  },
   store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI }) 
 }));
 
-// Connect flash
-app.use(flash());
+// Set the view engine to ejs
+app.use(expressLayouts);
+app.set("views", "./views");
+app.set('layout', 'layouts/main');   
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
-// Global variables for flash messages
-app.use((req, res, next) => {
-  res.locals.success_msg = req.flash('success_msg');
-  res.locals.error_msg = req.flash('error_msg');
-  next();
-});
+// Routes
+const recipeRoutes = require('./routes/recipes'); 
+const commentRoutes = require('./routes/comments');
+const authRoutes = require('./routes/auth');
+
+app.use('/', recipeRoutes); // Mount the recipe routes
+app.use('/comments', commentRoutes); // Mount the comment routes
+app.use('/auth', authRoutes); // Mount the auth routes
+app.use('/recipes', recipeRoutes); // Mount the recipe routes
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI) 
-  .then(() => console.log('MongoDB connection successful'))
-  .catch(err => console.error('MongoDB connection error:', err));
-
-app.use('/recipes', recipeRoutes);
-
-// Global error handler should be last
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send('Something went wrong here!');
-});
-
-router.post('/login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
-
-    if (user && (await bcrypt.compare(password, user.password))) {
-      // Passwords match
-      req.session.userId = user.id; // Set user id to session
-      res.redirect('/dashboard'); // Redirect to user dashboard or profile
-    } else {
-      req.flash('error_msg', 'Invalid credentials');
-      res.redirect('/login');
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Server Error');
-  }
-});
-
-router.get('/:id', async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id);
-
-    if (!user) {
-      res.status(404).send('User not found');
-    } else {
-      res.render('profile', { user }); 
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Server Error');
-  }
-});
-
+connectDB();
 
 // Start the server
-const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

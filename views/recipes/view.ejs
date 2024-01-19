@@ -1,0 +1,40 @@
+<h1><%= recipe.title %></h1>
+<p><%= recipe.description %></p>
+
+<!-- Display the list of ingredients -->
+<ul>
+    <% recipe.ingredients.forEach(ingredient => { %>
+        <li><%= ingredient %></li>
+    <% }) %>
+</ul>
+
+<!-- Display the preparation instructions -->
+<p><%= recipe.preparation %></p>
+
+<!-- <form action="/recipes/delete/<%= recipe._id %>" method="post">
+    <input type="submit" value="Delete Recipe">
+</form> -->
+<!-- Comments Section -->
+<section class="comments">
+    <h2>Comments</h2>
+    <% comments.forEach(comment => { %>
+        <div class="comment">
+            <p><%= comment.text %> - by <%= comment.author %></p>
+        </div>
+    <% }) %>
+</section>
+
+<!-- Comment Submission Form -->
+<section class="submit-comment">
+    <h2>Leave a Comment</h2>
+    <form action="/comments/submit/<%= recipe._id %>" method="post">
+        <textarea name="text" placeholder="Write your comment here..." required></textarea>
+        <input type="submit" value="Submit Comment">
+    </form>
+</section>
+<div class="recipe-actions">
+    <a href="/recipes/edit/<%= recipe._id %>">Edit Recipe</a>
+    <form action="/recipes/delete/<%= recipe._id %>" method="post">
+        <input type="submit" value="Delete Recipe" onclick="return confirm('Are you sure you want to delete this recipe?');">
+    </form>
+</div>

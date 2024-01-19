@@ -17,7 +17,7 @@ Recipe Sharing Platform is a web application where users can share their favorit
 - **Backend**: Node.js, Express
 - **Database**: MongoDB
 - **Frontend**: EJS, HTML, CSS
-- **Authentication**: N/A
+- **Authentication**:jwt
 - **Password Hashing**: bcryptjs
 - **Session Management**: express-session
 

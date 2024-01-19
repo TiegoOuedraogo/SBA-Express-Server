@@ -1,94 +1,38 @@
 const express = require('express');
 const router = express.Router();
-const Recipe = require('../models/recipe');
-const Comment = require('../models/comment');
+const Comment = require('../models/Comment');
 
-// Route to add a comment to a recipe
-router.post('/recipes/:recipeId/comments', async (req, res) => {
+// Submit a Comment
+router.post('/submit/:recipeId', async (req, res) => {
+
+    const { text } = req.body;
+    const recipeId = req.params.recipeId;
+    //const userId = req.user._id;
+
     try {
-      const recipe = await Recipe.findById(req.params.recipeId);
-      
-      if (!recipe) {
-        req.flash('error_msg', 'Recipe not found');
-        return res.redirect('back');
-      }
-  
-      const newComment = new Comment({
-        text: req.body.text,
-        author: req.user._id  // for authenticate user
-      });
-  
-      const savedComment = await newComment.save();
-      
-      recipe.comments.push(savedComment._id);
-      await recipe.save();
-  
-      req.flash('success_msg', 'Comment added successfully!');
-      res.redirect(`/recipes/${req.params.recipeId}`);
-    } catch (error) {
-      console.error(error);
-      req.flash('error_msg', 'Error adding comment');
-      res.redirect('back');
-    }
-  });
+        const newComment = new Comment({
+            text,
+            recipe: recipeId,
+            // userId: userId
+        });
 
-// Route to edit a comment
-router.put('/recipes/:recipeId/comments/:commentId', async (req, res) => {
+        await newComment.save();
+        res.redirect('/recipes/view/' + recipeId); // Redirect back to the recipe view
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('Server error');
+    }
+});
+
+// Optionally, you can add a route to view comments for a recipe
+router.get('/view/:recipeId',  async (req, res) => {
     try {
-      const comment = await Comment.findById(req.params.commentId);
-      
-      if (!comment) {
-        req.flash('error_msg', 'Comment not found');
-        return res.redirect('back');
-      }
-  
-      // check if the comment's author matches the current user
-      if (comment.author.toString() !== req.user._id.toString()) {
-        req.flash('error_msg', 'You do not have permission to edit this comment');
-        return res.redirect('back');
-      }
-
-      comment.text = req.body.text;
-      await comment.save();
-  
-      req.flash('success_msg', 'Comment edited successfully!');
-      res.redirect(`/recipes/${req.params.recipeId}`);
+        const comments = await Comment.find({ recipe: req.params.recipeId }).populate('author');
+        res.render('comments/view', { comments }); // Render a view showing comments
     } catch (error) {
-      console.error(error);
-      req.flash('error_msg', 'Error editing comment');
-      res.redirect('back');
+        res.status(500).send('Server error');
     }
-  });
-
-// Route to delete a comment
-router.delete('/recipes/:recipeId/comments/:commentId', async (req, res) => {
-    try {
-      const recipe = await Recipe.findById(req.params.recipeId);
-      const comment = await Comment.findById(req.params.commentId);
-  
-      if (!recipe || !comment) {
-        req.flash('error_msg', 'Recipe or comment not found');
-        return res.redirect('back');
-      }
-  
-      //check if the comment's author matches the current user
-      if (comment.author.toString() !== req.user._id.toString()) {
-        req.flash('error_msg', 'You do not have permission to delete this comment');
-        return res.redirect('back');
-      }
-  
-      recipe.comments.pull(comment._id);
-      await recipe.save();
-      await comment.remove();
-  
-      req.flash('success_msg', 'Comment deleted successfully!');
-      res.redirect(`/recipes/${req.params.recipeId}`);
-    } catch (error) {
-      console.error(error);
-      req.flash('error_msg', 'Error deleting comment');
-      res.redirect('back');
-    }
-  });
-  
+});
 
 module.exports = router;
+

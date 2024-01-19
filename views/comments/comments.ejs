@@ -1,0 +1,9 @@
+<% comments.forEach(comment => { %>
+    <div class="comment">
+        <p><strong><%= comment.authorName %></strong>: <%= comment.text %></p>
+    </div>
+<% }) %>
+
+
+<form action="/comments/submit" method="post">
+</form>
